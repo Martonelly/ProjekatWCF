@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace Common.Interfaces
 {
     public interface IReadFromDataBase
     {
-        void FReadFromDataBase(string path);
+        List<PvSample> FReadFromDataBase(string path, int limitN);
     }
 }
