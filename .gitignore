@@ -54,3 +54,4 @@ TestResult.xml
 nunit-*.xml
 
 .vs/
+/Client/Resources/DataBase/FPV_Altamonte_FL_data.csv
