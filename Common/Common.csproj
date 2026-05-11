@@ -50,6 +50,7 @@
     <Compile Include="Enums\LoggerTypes.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Interfaces\ILogger.cs" />
+    <Compile Include="Interfaces\IReadFromDataBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
