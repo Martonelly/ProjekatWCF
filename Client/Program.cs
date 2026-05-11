@@ -1,9 +1,11 @@
-﻿using Client.Validations;
+﻿using Client.Functions;
+using Client.Validations;
 using Common.Contracts;
 using Common.Helpers;
 using Common.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
@@ -16,38 +18,80 @@ namespace Client
         static void Main(string[] args)
         {
             ILogger logger = new Logger();
-            ChannelFactory<ISessionService> factory = new ChannelFactory<ISessionService>("SessionService");
-            //TODO read from CSV file (externally) whole client workflow here
-            ISessionService proxy = factory.CreateChannel();
-            Console.WriteLine("Client starting!");
-            Console.ReadKey();
-            PvMeta test = new PvMeta("FileName", 100, "Schema", 200);
             ValidateLine validation = new ValidateLine();
-            //TODO start session befor try catch
+
+            string csvPath = @"C:\Users\Ivan\Desktop\Virtualizacija\provera\Client\Resources\DataBase\FPV_Altamonte_FL_data.csv";
+
+            // Initialiaze WCF channel factory for ISessionService
+            ChannelFactory<ISessionService> factory = new ChannelFactory<ISessionService>("SessionService");
+            ISessionService proxy = null;
+
+            Console.WriteLine("\t\t\t--- Solar Phanels Client ---");
+            Console.WriteLine("Preace any key to continiue...");
+            Console.ReadKey(); 
+
             try
             {
-                //The meta values are set up here
-                //Test for read sample --> the same as one line in the CSV file
-                PvSample sample1 = new PvSample("0,2023335,00:05:00,0.1,3277.0,424.0,37.0,482.0,478.5,483.0,0.0,0.0,0.0,279.3,276.7,277.2,60.0,60.0,60.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,");
-                //For test and to see how the validation and the logger works
-                validation.checkValidity(sample1);
-                if (validation.IsValid)
+                List<PvSample> data;
+
+                //Reading data from CSV file
+                using (ReadFromDataBase reader = new ReadFromDataBase(csvPath))
                 {
-                    proxy.StartSession(test);
-                    logger.Info(validation.Messsage);
-                }
-                else {
-                    //TODO write the lines in the rejected_client.CSV
-                    logger.Error(validation.Messsage);
+                    //Reading first 100 lines from CSV file, if there are less than 100 lines, it will read all of them
+                    data = reader.FReadFromDataBase(csvPath, 100);
+                } // here the Dispose method of ReadFromDataBase will be called, closing the file stream and stream reader
+
+                // Create a channel to the WCF service
+                proxy = factory.CreateChannel();
+
+                // Information about the session
+                PvMeta meta = new PvMeta("FPV_Altamonte.csv", data.Count, "1.0", 100);
+
+                // Start the session on the server
+                proxy.StartSession(meta);
+                logger.Info("Session is succesfuly started.");
+
+                // Sending data to the server one by one, with validation and logging
+                foreach (var sample in data)
+                {
+                    validation.checkValidity(sample);
+
+                    if (validation.IsValid)
+                    {
+                        proxy.PushSample(sample);
+                        Console.WriteLine($"Sucesfully sent line: {sample.RowIndex}");
+                    }
+                    else
+                    {
+                        // Log the error to the rejected_client.CSV file and also log it using the logger
+                        string errorLog = $"Line: {sample.RowIndex} Rejected: {validation.Messsage}";
+                        File.AppendAllText("rejected_client.CSV", $"{errorLog} | Raw: {sample.RowIndex},{sample.Day},{sample.Hour}..." + Environment.NewLine);
+                        logger.Error(errorLog);
+                    }
                 }
 
-                //TODO Reading the CSV file --> foreach loop sending one by one line to Service (PushSample function), the validation works the same as above
-                //
+                // End the session after all data is sent
+                proxy.EndSession();
+                logger.Info("Data transfer is all done. Sessino has ended");
+
+                // Channel and factory cleanup
+                ((IClientChannel)proxy).Close();
+                factory.Close();
             }
-            catch (Exception e){
-                logger.Error(e.ToString());
+            catch (Exception e)
+            {
+                logger.Error("Error: " + e.Message);
+
+                // Dispose of the channel and factory in case of an exception to free up resources
+                if (proxy != null)
+                {
+                    Console.WriteLine("Error has acured, Forcefuly freing up resources (Abort)");
+                    ((IClientChannel)proxy).Abort();
+                }
+                factory.Abort();
             }
-            //TODO EndSession() --> after the foreach loop
+
+            Console.WriteLine("\nOperation has ended. Preace ENTER to finish");
             Console.ReadLine();
         }
     }
