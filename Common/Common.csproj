@@ -47,6 +47,9 @@
     <Compile Include="Contracts\ISessionService.cs" />
     <Compile Include="Contracts\PvMeta.cs" />
     <Compile Include="Contracts\PvSample.cs" />
+    <Compile Include="Enums\LoggerTypes.cs" />
+    <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

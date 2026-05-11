@@ -7,7 +7,7 @@ using Common.Contracts;
 
 namespace Service
 {
-    internal class SessionService : ISessionService
+    public class SessionService : ISessionService
     {
         public void EndSession()
         {
@@ -16,12 +16,14 @@ namespace Service
 
         public void PushSample(PvSample sample)
         {
-            throw new NotImplementedException();
+            //Reciveing the samples --> proceed with the requirements
         }
 
         public void StartSession(PvMeta meta)
         {
+           //Just a test to see if it works 
            Console.WriteLine($"Got the meta stuff!{meta.FileName}, {meta.TotalRows}, {meta.SchemaVersion}, {meta.RowLimitN}");
+            //TODO Create a CSV file for the incoming Samples (Data/<PlantId>/<YYYY-MM-DD>/session.csv. )
         }
     }
 }

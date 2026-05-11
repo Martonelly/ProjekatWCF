@@ -51,5 +51,24 @@ namespace Common.Contracts
             RowIndex = rowIndex;
         }
 
+        public PvSample(string CSVLine) {
+            string[] splited = CSVLine.Split(',');
+            try
+            {
+                RowIndex = Int32.Parse(splited[0]);
+                Day = Int32.Parse(splited[1]);
+                Hour = splited[2];
+                AcPwrt = Double.Parse(splited[3]);
+                DcVolt = Double.Parse(splited[4]);
+                Temper = Double.Parse(splited[5]);
+                Vl1to2 = Double.Parse(splited[6]);
+                Vl2to3 = Double.Parse(splited[7]);
+                Vl3to1 = Double.Parse(splited[8]);
+                AcCur1 = Double.Parse(splited[9]);
+                AcVlt1 = Double.Parse(splited[10]);
+            }
+            catch { }
+            
+        }
     }
 }
