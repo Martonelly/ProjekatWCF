@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Client.Validations
 {
+    //Validation should be checked on service side, pleace move it there
     public class ValidateLine
     {
         public bool IsValid { get; set; }

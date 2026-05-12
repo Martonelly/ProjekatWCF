@@ -63,6 +63,7 @@ namespace Client
                     }
                     else
                     {
+                        //This should be on servise side, we will talk about this
                         // Log the error to the rejected_client.CSV file and also log it using the logger
                         string errorLog = $"Line: {sample.RowIndex} Rejected: {validation.Messsage}";
                         File.AppendAllText("rejected_client.CSV", $"{errorLog} | Raw: {sample.RowIndex},{sample.Day},{sample.Hour}..." + Environment.NewLine);
