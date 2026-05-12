@@ -20,7 +20,7 @@ namespace Client
             ILogger logger = new Logger();
             ValidateLine validation = new ValidateLine();
 
-            string csvPath = @"C:\Users\Ivan\Desktop\Virtualizacija\provera\Client\Resources\DataBase\FPV_Altamonte_FL_data.csv";
+            string csvPath = "FPV_Altamonte_FL_data.csv";
 
             // Initialiaze WCF channel factory for ISessionService
             ChannelFactory<ISessionService> factory = new ChannelFactory<ISessionService>("SessionService");

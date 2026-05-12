@@ -51,7 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Resources\DataBase\FPV_Altamonte_FL_data.csv" />
+    <Resource Include="Resources\DataBase\FPV_Altamonte_FL_data.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
