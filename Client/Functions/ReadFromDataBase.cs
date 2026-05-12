@@ -29,12 +29,13 @@ namespace Client.Functions
             string headerLine = sr.ReadLine(); // Skip the header line
             string line;
             List<PvSample> samples = new List<PvSample>();
-            int rowIndex = 0;
+            int row = 0;
 
-            while ((line = sr.ReadLine()) != null && rowIndex < limitN)
+            while ((line = sr.ReadLine()) != null && row < limitN)
             {
                 try
                 {
+                    //TODO you can use the parser in the construktor of the PvSample 
                     // Split the line into parts and parse the values
                     string[] parts = line.Split(',');
                     // Parse the necessary fields to create a PvSample object
@@ -52,7 +53,8 @@ namespace Client.Functions
                     // Create a PvSample object and add it to the list
                     PvSample pvSample = new PvSample(Day, Hour, AcPwrt, DcVolt, Temper, Vl1to2, Vl2to3, Vl3to1, AcCur1, AcVlt1, int.Parse(parts[0]));
                     samples.Add(pvSample);
-                    rowIndex++;
+                    
+                    row++;
                 }
                 catch (Exception)
                 {
