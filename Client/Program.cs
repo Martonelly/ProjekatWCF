@@ -38,14 +38,14 @@ namespace Client
                 using (ReadFromDataBase reader = new ReadFromDataBase(csvPath))
                 {
                     //Reading first 100 lines from CSV file, if there are less than 100 lines, it will read all of them
-                    data = reader.FReadFromDataBase(csvPath, 100);
+                    data = reader.FReadFromDataBase(csvPath, 300);
                 } // here the Dispose method of ReadFromDataBase will be called, closing the file stream and stream reader
 
                 // Create a channel to the WCF service
                 proxy = factory.CreateChannel();
 
                 // Information about the session
-                PvMeta meta = new PvMeta("FPV_Altamonte.csv", data.Count, "1.0", 100);
+                PvMeta meta = new PvMeta("FPV_Altamonte.csv", data.Count, "1.0", 300);
 
                 // Start the session on the server
                 proxy.StartSession(meta);
