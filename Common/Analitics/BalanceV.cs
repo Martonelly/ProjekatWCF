@@ -23,7 +23,7 @@ namespace Common.Analitics
             double min = Math.Min(VL1TO2, Math.Min(VL2TO3, VL3TO1));
             double imbalance = (max - min); // R in projct specifications
 
-            double alowedRange = (VL1TO2 + VL2TO3 + VL3TO1) / 3 * imbalanceRange/100;
+            double alowedRange = (VL1TO2 + VL2TO3 + VL3TO1) / 3 * (double)(imbalanceRange/100);
 
             if (imbalance > alowedRange)
             {

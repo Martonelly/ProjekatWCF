@@ -49,6 +49,8 @@ namespace Service
 
         public void PushSample(PvSample sample)
         {
+            Console.WriteLine("----------------------------------------------------------------------------");
+            Console.WriteLine("Data transfer started...");
             rowCounter++;
             //Listeners that subscribe to the event
             Listner sampleListner = new Listner();
@@ -84,6 +86,7 @@ namespace Service
                 _rejectStreamWriter?.WriteLine($"{sample.RowIndex},{sample.Day},{sample.Hour},{sample.AcPwrt},{sample.DcVolt},{sample.Temper},{sample.Vl1to2},{sample.Vl2to3},{sample.Vl3to1},{sample.AcCur1},{sample.AcVlt1}");
                 // TODO: Add Error Message to the rejected samples header
             }
+            Console.WriteLine("----------------------------------------------------------------------------");
         }
 
         public void StartSession(PvMeta meta)

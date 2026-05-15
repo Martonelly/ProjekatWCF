@@ -24,9 +24,7 @@ namespace Common.Helpers
         {
             DateTime time = new DateTime();
             time = DateTime.Now;
-            Console.WriteLine("----------------------------------------------------------------------------");
             Console.WriteLine($"[{LoggerTypes.INFO}],\t\t{time},\t\t{message}!");
-            Console.WriteLine("----------------------------------------------------------------------------");
             Console.WriteLine();
         }
 
@@ -34,9 +32,7 @@ namespace Common.Helpers
         {
             DateTime time = new DateTime();
             time = DateTime.Now;
-            Console.WriteLine("----------------------------------------------------------------------------");
             Console.WriteLine($"[{LoggerTypes.WARNING}],\t{time},\t\t{message}!");
-            Console.WriteLine("----------------------------------------------------------------------------");
             Console.WriteLine();
         }
     }
