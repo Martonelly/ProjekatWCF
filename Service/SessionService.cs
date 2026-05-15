@@ -6,7 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Client.Validations;
+using Common.Analitics;
 using Common.Contracts;
+using Common.Enums;
+using Common.Events.Publisher;
+using Common.Events.Subscriber;
 using Common.Helpers;
 using Common.Interfaces;
 
@@ -19,10 +23,19 @@ namespace Service
         private bool _isDisposed = false;
         private ILogger logger = new Logger();
         private int rowLimit;
-        
+        private Flatline flatline = new Flatline();
+        private Spike spike = new Spike();
         public void EndSession()
         {
+            Listner TransferComplete = new Listner();
+
+            OnTransferGenerator generator = new OnTransferGenerator();
+
+            generator.TransferCompletedEvent += TransferComplete.LogInfo;
+
             Console.WriteLine("Session has ended by request");
+            generator.ProcessTransfer(TransferType.Complete);
+
             Console.WriteLine($"Recived messages are {Counter.RowCount} and the total processed row Limit is {rowLimit}!");
             Console.WriteLine($"Recived data is {(((double)Counter.RowCount/rowLimit)*100)}% of the actual size!");
             this.Dispose();
@@ -34,17 +47,29 @@ namespace Service
         public void PushSample(PvSample sample)
         {
             Counter.RowCount++;
-        //TODO : add validation here
-        bool valid = true; //TODO change this to the actual validation result
+            //Listeners that subscribe to the event
+            Listner sampleListner = new Listner();
+            //Transfer generator that has the two events (Publisher) --> we manually activate these events bellow
+            OnTransferGenerator transferGenerator = new OnTransferGenerator();
+
+            //Subscription 
+            transferGenerator.SampleRecievedEvent += sampleListner.LogInfo;
+
+            //Raise event
+            transferGenerator.ProcessTransfer(TransferType.Recieved);
+
             ValidateLine isValid = new ValidateLine();
             isValid.checkValidity(sample);
+
+            //ANALITICS PART
+            flatline.FlatlineCheck(sample);
+            spike.SpikeCheck(sample);
+            //TODO ADD temp and Voltage Check (same style of warnings diffenert messages)
+
             if (isValid.IsValid)
             {
-                Console.WriteLine("Data is transfring...");
-               // logger.Info(isValid.Messsage);
                 _streamWriter?.WriteLine($"{sample.RowIndex},{sample.Day},{sample.Hour},{sample.AcPwrt},{sample.DcVolt},{sample.Temper},{sample.Vl1to2},{sample.Vl2to3},{sample.Vl3to1},{sample.AcCur1},{sample.AcVlt1}");
                 _streamWriter?.Flush();
-                Console.WriteLine("Data transfer finished...");
             }
             else
             {
@@ -57,6 +82,13 @@ namespace Service
 
         public void StartSession(PvMeta meta)
         {
+            Listner transferListner = new Listner();
+
+            OnTransferGenerator generator = new OnTransferGenerator();
+
+            generator.TransferStartedEvent += transferListner.LogInfo;
+
+            generator.ProcessTransfer(TransferType.Start);
             Counter.RowCount = 0;
             
             Console.WriteLine("\t\t\t --- Starting Session ---");
@@ -104,5 +136,6 @@ namespace Service
                 _isDisposed = true;
             }
         }
+
     }
 }

@@ -35,7 +35,7 @@ namespace Client.Functions
             {
                 try
                 {
-                    //TODO you can use the parser in the construktor of the PvSample 
+                    //TODO you can use the parser in the constructor of the PvSample 
                     // Split the line into parts and parse the values
                     string[] parts = line.Split(',');
                     // Parse the necessary fields to create a PvSample object
