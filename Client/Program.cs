@@ -47,7 +47,7 @@ namespace Client
                 proxy = factory.CreateChannel();
 
                 // Information about the session
-                PvMeta meta = new PvMeta("FPV_Altamonte.csv", data.Count, "1.0", 300);
+                PvMeta meta = new PvMeta("FPV_Altamonte.csv", data.Count, "1.0", 220);
 
                 SolarDataProcessor processor = new SolarDataProcessor(proxy, logger);
                 processor.TransferData(data, meta);

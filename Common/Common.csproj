@@ -124,7 +124,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analitics\BalanceV.cs" />
     <Compile Include="Analitics\Flatline.cs" />
+    <Compile Include="Analitics\OverTemp.cs" />
     <Compile Include="Analitics\Spike.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="Contracts\ISessionService.cs" />

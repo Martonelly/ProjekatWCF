@@ -26,6 +26,8 @@ namespace Service
         private int rowLimit;
         private Flatline flatline = new Flatline();
         private Spike spike = new Spike();
+        private BalanceV balanceV = new BalanceV();
+        private OverTemp overTemp = new OverTemp();
         public void EndSession()
         {
             Listner TransferComplete = new Listner();
@@ -65,7 +67,10 @@ namespace Service
             //ANALITICS PART
             flatline.FlatlineCheck(sample);
             spike.SpikeCheck(sample);
-            //TODO ADD temp and Voltage Check (same style of warnings diffenert messages)
+            balanceV.BalanceVCheck(sample);
+            overTemp.OverTempCheck(sample);
+
+
             Thread.Sleep(500); // Simulate some processing time for each sample to test the client handling of delayed responses
             if (isValid.IsValid)
             {
