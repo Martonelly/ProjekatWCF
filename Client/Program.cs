@@ -10,6 +10,8 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using Common.Test;
+using System.Threading;
 
 namespace Client
 {
@@ -38,7 +40,7 @@ namespace Client
                 using (ReadFromDataBase reader = new ReadFromDataBase(csvPath))
                 {
                     //Reading first 100 lines from CSV file, if there are less than 100 lines, it will read all of them
-                    data = reader.FReadFromDataBase(csvPath, 300);
+                    data = reader.FReadFromDataBase(csvPath, 220);
                 } // here the Dispose method of ReadFromDataBase will be called, closing the file stream and stream reader
 
                 // Create a channel to the WCF service
@@ -47,33 +49,8 @@ namespace Client
                 // Information about the session
                 PvMeta meta = new PvMeta("FPV_Altamonte.csv", data.Count, "1.0", 300);
 
-                // Start the session on the server
-                proxy.StartSession(meta);
-                logger.Info("Session is succesfuly started.");
-
-                // Sending data to the server one by one, with validation and logging
-                foreach (var sample in data)
-                {
-                    validation.checkValidity(sample);
-
-                    if (validation.IsValid)
-                    {
-                        proxy.PushSample(sample);
-                        Console.WriteLine($"Sucesfully sent line: {sample.RowIndex}");
-                    }
-                    else
-                    {
-                        //This should be on servise side, we will talk about this
-                        // Log the error to the rejected_client.CSV file and also log it using the logger
-                        string errorLog = $"Line: {sample.RowIndex} Rejected: {validation.Messsage}";
-                        File.AppendAllText("rejected_client.CSV", $"{errorLog} | Raw: {sample.RowIndex},{sample.Day},{sample.Hour}..." + Environment.NewLine);
-                        logger.Error(errorLog);
-                    }
-                }
-
-                // End the session after all data is sent
-                proxy.EndSession();
-                logger.Info("Data transfer is all done. Sessino has ended");
+                SolarDataProcessor processor = new SolarDataProcessor(proxy, logger);
+                processor.TransferData(data, meta);
 
                 // Channel and factory cleanup
                 ((IClientChannel)proxy).Close();

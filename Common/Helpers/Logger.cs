@@ -14,21 +14,30 @@ namespace Common.Helpers
         {
             DateTime time = new DateTime();
             time = DateTime.Now;
-            Console.WriteLine($"[{LoggerTypes.ERROR}],  {time},  {message}!");
+            Console.WriteLine("----------------------------------------------------------------------------");
+            Console.WriteLine($"[{LoggerTypes.ERROR}],\t\t{time},\t\t{message}!");
+            Console.WriteLine("----------------------------------------------------------------------------");
+            Console.WriteLine();
         }
 
         public void Info(string message)
         {
             DateTime time = new DateTime();
             time = DateTime.Now;
-            Console.WriteLine($"[{LoggerTypes.INFO}],  {time},  {message}!");
+            Console.WriteLine("----------------------------------------------------------------------------");
+            Console.WriteLine($"[{LoggerTypes.INFO}],\t\t{time},\t\t{message}!");
+            Console.WriteLine("----------------------------------------------------------------------------");
+            Console.WriteLine();
         }
 
         public void Warning(string message)
         {
             DateTime time = new DateTime();
             time = DateTime.Now;
-            Console.WriteLine($"[{LoggerTypes.WARNING}],  {time},  {message}!");
+            Console.WriteLine("----------------------------------------------------------------------------");
+            Console.WriteLine($"[{LoggerTypes.WARNING}],\t{time},\t\t{message}!");
+            Console.WriteLine("----------------------------------------------------------------------------");
+            Console.WriteLine();
         }
     }
 }

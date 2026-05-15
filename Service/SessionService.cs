@@ -4,7 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using Client.Validations;
 using Common.Analitics;
 using Common.Contracts;
@@ -22,6 +22,7 @@ namespace Service
         private StreamWriter _rejectStreamWriter;
         private bool _isDisposed = false;
         private ILogger logger = new Logger();
+        private int rowCounter;
         private int rowLimit;
         private Flatline flatline = new Flatline();
         private Spike spike = new Spike();
@@ -36,8 +37,8 @@ namespace Service
             Console.WriteLine("Session has ended by request");
             generator.ProcessTransfer(TransferType.Complete);
 
-            Console.WriteLine($"Recived messages are {Counter.RowCount} and the total processed row Limit is {rowLimit}!");
-            Console.WriteLine($"Recived data is {(((double)Counter.RowCount/rowLimit)*100)}% of the actual size!");
+            Console.WriteLine($"Recived messages are {rowCounter} and the total processed row Limit is {rowLimit}!");
+            Console.WriteLine($"Recived data is {Math.Round(((double)rowCounter/rowLimit)*100),2}% of the actual size!");
             this.Dispose();
             Console.WriteLine("All Data is saved on disc.");
             Console.WriteLine("Preace any key to quit...");
@@ -46,7 +47,7 @@ namespace Service
 
         public void PushSample(PvSample sample)
         {
-            Counter.RowCount++;
+            rowCounter++;
             //Listeners that subscribe to the event
             Listner sampleListner = new Listner();
             //Transfer generator that has the two events (Publisher) --> we manually activate these events bellow
@@ -65,7 +66,7 @@ namespace Service
             flatline.FlatlineCheck(sample);
             spike.SpikeCheck(sample);
             //TODO ADD temp and Voltage Check (same style of warnings diffenert messages)
-
+            Thread.Sleep(500); // Simulate some processing time for each sample to test the client handling of delayed responses
             if (isValid.IsValid)
             {
                 _streamWriter?.WriteLine($"{sample.RowIndex},{sample.Day},{sample.Hour},{sample.AcPwrt},{sample.DcVolt},{sample.Temper},{sample.Vl1to2},{sample.Vl2to3},{sample.Vl3to1},{sample.AcCur1},{sample.AcVlt1}");
@@ -82,6 +83,8 @@ namespace Service
 
         public void StartSession(PvMeta meta)
         {
+            Console.WriteLine("\t\t\t --- Starting Session ---");
+            
             Listner transferListner = new Listner();
 
             OnTransferGenerator generator = new OnTransferGenerator();
@@ -89,9 +92,7 @@ namespace Service
             generator.TransferStartedEvent += transferListner.LogInfo;
 
             generator.ProcessTransfer(TransferType.Start);
-            Counter.RowCount = 0;
-            
-            Console.WriteLine("\t\t\t --- Starting Session ---");
+            rowCounter = 0;
 
             // Creating a directory for the session, using the file name as PlantId and the current date, and creating a file for the session data
             string PlantId = meta.FileName.Replace(".csv", "");
