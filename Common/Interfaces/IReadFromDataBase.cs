@@ -9,6 +9,6 @@ namespace Common.Interfaces
 {
     public interface IReadFromDataBase
     {
-        List<PvSample> FReadFromDataBase(string path, int limitN);
+        string FReadFromDataBase();
     }
 }

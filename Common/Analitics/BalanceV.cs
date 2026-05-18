@@ -11,7 +11,7 @@ namespace Common.Analitics
 {
     public class BalanceV
     {
-        private int imbalanceRange = int.Parse(System.Configuration.ConfigurationManager.AppSettings["VoltageImbalance"]);
+        private double imbalanceRange = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["VoltageImbalance"]);
 
         public void BalanceVCheck(PvSample sample)
         {
@@ -23,7 +23,7 @@ namespace Common.Analitics
             double min = Math.Min(VL1TO2, Math.Min(VL2TO3, VL3TO1));
             double imbalance = (max - min); // R in projct specifications
 
-            double alowedRange = ((VL1TO2 + VL2TO3 + VL3TO1) / 3) * (imbalanceRange/100.0);
+            double alowedRange = ((VL1TO2 + VL2TO3 + VL3TO1) / 3) * (imbalanceRange);
 
             if (imbalance > alowedRange)
             {

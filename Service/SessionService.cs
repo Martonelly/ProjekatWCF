@@ -18,8 +18,8 @@ namespace Service
 {
     public class SessionService : ISessionService, IDisposable
     {
-        private StreamWriter _streamWriter;
-        private StreamWriter _rejectStreamWriter;
+        private StreamWriter _streamWriter; //= new StreamWriter("test.csv");
+        private StreamWriter _rejectStreamWriter;// = new StreamWriter("rejected.csv");
         private bool _isDisposed = false;
         private ILogger logger = new Logger();
         private int rowCounter;
@@ -28,23 +28,20 @@ namespace Service
         private Spike spike = new Spike();
         private BalanceV balanceV = new BalanceV();
         private OverTemp overTemp = new OverTemp();
+        //Listeners that subscribe to the event
+        private Listner sampleListner = new Listner();
+        //Transfer generator that has the two events (Publisher) --> we manually activate these events bellow
+        private OnTransferGenerator transferGenerator = new OnTransferGenerator();
+
+        
         public void EndSession()
         {
-            Listner TransferComplete = new Listner();
-
-            OnTransferGenerator generator = new OnTransferGenerator();
-
-            generator.TransferCompletedEvent += TransferComplete.LogInfo;
-
             Console.WriteLine("Session has ended by request");
-            generator.ProcessTransfer(TransferType.Complete);
-
-            Console.WriteLine($"Recived messages are {rowCounter} and the total processed row Limit is {rowLimit}!");
-            Console.WriteLine($"Recived data is {Math.Round(((double)rowCounter/rowLimit)*100),2}% of the actual size!");
+            transferGenerator.ProcessTransfer(TransferType.Complete);
             this.Dispose();
             Console.WriteLine("All Data is saved on disc.");
-            Console.WriteLine("Preace any key to quit...");
-            Console.ReadKey();
+            Console.WriteLine("\nOperation has ended, press any button to close the window");
+            
         }
 
         public void PushSample(PvSample sample)
@@ -52,13 +49,7 @@ namespace Service
             Console.WriteLine("----------------------------------------------------------------------------");
             Console.WriteLine("Data transfer started...");
             rowCounter++;
-            //Listeners that subscribe to the event
-            Listner sampleListner = new Listner();
-            //Transfer generator that has the two events (Publisher) --> we manually activate these events bellow
-            OnTransferGenerator transferGenerator = new OnTransferGenerator();
-
-            //Subscription 
-            transferGenerator.SampleRecievedEvent += sampleListner.LogInfo;
+            
 
             //Raise event
             transferGenerator.ProcessTransfer(TransferType.Recieved);
@@ -73,37 +64,37 @@ namespace Service
             overTemp.OverTempCheck(sample);
 
 
-            Thread.Sleep(500); // Simulate some processing time for each sample to test the client handling of delayed responses
+            Thread.Sleep(100); // Simulate some processing time for each sample to test the client handling of delayed responses
             if (isValid.IsValid)
             {
-                _streamWriter?.WriteLine($"{sample.RowIndex},{sample.Day},{sample.Hour},{sample.AcPwrt},{sample.DcVolt},{sample.Temper},{sample.Vl1to2},{sample.Vl2to3},{sample.Vl3to1},{sample.AcCur1},{sample.AcVlt1}");
-                _streamWriter?.Flush();
+                _streamWriter.WriteLine($"{sample.RowIndex},{sample.Day},{sample.Hour},{sample.AcPwrt},{sample.DcVolt},{sample.Temper},{sample.Vl1to2},{sample.Vl2to3},{sample.Vl3to1},{sample.AcCur1},{sample.AcVlt1}");
+                _streamWriter.Flush();
             }
             else
             {
-                logger.Error(isValid.Messsage);
-                //_rejectStreamWriter.WriteLine("RowIndex,Day,Hour,AcPwrt,DcVolt,Temper,Vl1to2,Vl2to3,Vl3to1,AcCur1,AcVlt1,ErrMsg");
-                _rejectStreamWriter?.WriteLine($"{sample.RowIndex},{sample.Day},{sample.Hour},{sample.AcPwrt},{sample.DcVolt},{sample.Temper},{sample.Vl1to2},{sample.Vl2to3},{sample.Vl3to1},{sample.AcCur1},{sample.AcVlt1}");
-                // TODO: Add Error Message to the rejected samples header
+                logger.Error(isValid.Message);
+                _rejectStreamWriter.WriteLine($"{isValid.Message},{sample.RowIndex},{sample.Day},{sample.Hour},{sample.AcPwrt},{sample.DcVolt},{sample.Temper},{sample.Vl1to2},{sample.Vl2to3},{sample.Vl3to1},{sample.AcCur1},{sample.AcVlt1}");
             }
+            Console.WriteLine("Transfer ended!");
+            Console.WriteLine("----------------------------------------------------------------------------");
+            Console.WriteLine($"Recived messages are {rowCounter} and the total processed row Limit is {rowLimit}!");
+            Console.WriteLine($"Recived data is {Math.Round(((double)rowCounter / rowLimit) * 100),2}% of the actual size!");
             Console.WriteLine("----------------------------------------------------------------------------");
         }
 
         public void StartSession(PvMeta meta)
         {
             Console.WriteLine("\t\t\t --- Starting Session ---");
-            
-            Listner transferListner = new Listner();
 
-            OnTransferGenerator generator = new OnTransferGenerator();
-
-            generator.TransferStartedEvent += transferListner.LogInfo;
-
-            generator.ProcessTransfer(TransferType.Start);
+            //Subscriptions
+            transferGenerator.TransferStartedEvent += sampleListner.LogInfo;
+            transferGenerator.SampleRecievedEvent += sampleListner.LogInfo;
+            transferGenerator.TransferCompletedEvent += sampleListner.LogInfo;
+            transferGenerator.ProcessTransfer(TransferType.Start);
             rowCounter = 0;
 
             // Creating a directory for the session, using the file name as PlantId and the current date, and creating a file for the session data
-            string PlantId = meta.FileName.Replace(".csv", "");
+            string PlantId = meta.FileName.Replace("_data.csv", "");
             string directoryPath = $"Data/{PlantId}/{DateTime.Now:yyyy-MM-dd}/Session.csv";
 
             if (!Directory.Exists(Path.GetDirectoryName(directoryPath)))
@@ -112,14 +103,14 @@ namespace Service
             _streamWriter = new StreamWriter(directoryPath);
             _rejectStreamWriter = new StreamWriter("Rejected_Samples.csv");
 
-            // If the file is new, write the header line
+             //If the file is new, write the header line
             if (new FileInfo(directoryPath).Length == 0)
             {
                 _streamWriter.WriteLine("RowIndex,Day,Hour,AcPwrt,DcVolt,Temper,Vl1to2,Vl2to3,Vl3to1,AcCur1,AcVlt1");
             }
-            if(new FileInfo("Rejected_Samples.csv").Length == 0)
+           if(new FileInfo("Rejected_Samples.csv").Length == 0)
             {
-                _rejectStreamWriter.WriteLine("RowIndex,Day,Hour,AcPwrt,DcVolt,Temper,Vl1to2,Vl2to3,Vl3to1,AcCur1,AcVlt1,ErrMsg");
+                _rejectStreamWriter.WriteLine("ErrorMessage,RowIndex,Day,Hour,AcPwrt,DcVolt,Temper,Vl1to2,Vl2to3,Vl3to1,AcCur1,AcVlt1,ErrMsg");
             }
 
             rowLimit = meta.RowLimitN;
@@ -140,10 +131,14 @@ namespace Service
                     _rejectStreamWriter.Close();
                     _streamWriter.Dispose();
                     _rejectStreamWriter.Dispose();
-                    Console.WriteLine("Clients resources has being releaced");
+                    logger.Info("Services resources have been released");
                 }
                 _isDisposed = true;
             }
+        }
+
+        ~SessionService() {
+            Dispose(false);
         }
 
     }

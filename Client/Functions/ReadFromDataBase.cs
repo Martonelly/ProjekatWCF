@@ -1,5 +1,6 @@
 ﻿using Client.Validations;
 using Common.Contracts;
+using Common.Helpers;
 using Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Client.Functions
         private FileStream fs;
         private StreamReader sr;
         private bool disposedValue = false;
+        private ILogger logger = new Logger();
 
         public ReadFromDataBase(string path)
         {
@@ -22,48 +24,14 @@ namespace Client.Functions
             sr = new StreamReader(fs);
         }
 
-        public List<PvSample> FReadFromDataBase(string path, int limitN)
+        public string FReadFromDataBase()
         {
-            ReadFromDataBase reader = new ReadFromDataBase(path);
-
-            string headerLine = sr.ReadLine(); // Skip the header line
             string line;
-            List<PvSample> samples = new List<PvSample>();
-            int row = 0;
-
-            while ((line = sr.ReadLine()) != null && row < limitN)
-            {
-                try
-                {
-                    //TODO you can use the parser in the constructor of the PvSample 
-                    // Split the line into parts and parse the values
-                    string[] parts = line.Split(',');
-                    // Parse the necessary fields to create a PvSample object
-                    int Day = int.Parse(parts[1]);
-                    string Hour = parts[2];
-                    double AcPwrt = double.Parse(parts[3]);
-                    double DcVolt = double.Parse(parts[4]);
-                    double Temper = double.Parse(parts[6]);
-                    double Vl1to2 = double.Parse(parts[7]);
-                    double Vl2to3 = double.Parse(parts[8]);
-                    double Vl3to1 = double.Parse(parts[9]);
-                    double AcCur1 = double.Parse(parts[10]);
-                    double AcVlt1 = double.Parse(parts[13]);
-
-                    // Create a PvSample object and add it to the list
-                    PvSample pvSample = new PvSample(Day, Hour, AcPwrt, DcVolt, Temper, Vl1to2, Vl2to3, Vl3to1, AcCur1, AcVlt1, int.Parse(parts[0]));
-                    samples.Add(pvSample);
-                    
-                    row++;
-                }
-                catch (Exception)
-                {
-                    // If there's an error parsing the line, log it to the rejected_client.CSV file
-                    File.AppendAllText("rejected_client.CSV", line + Environment.NewLine);
-                }
-            }
-            return samples;
+            line = sr.ReadLine();
+            return line;
         }
+
+
         // Implementing the Dispose pattern to release resources
         public void Dispose()
         {
@@ -79,10 +47,14 @@ namespace Client.Functions
                 {
                     sr.Dispose();
                     fs.Dispose();
-                    Console.WriteLine("Clients resources has being releaced");
+                    logger.Info("Clients resources have been released");
                 }
                 disposedValue = true;
             }
+        }
+
+        ~ReadFromDataBase() {
+            Dispose(false);
         }
     }
 }

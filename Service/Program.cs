@@ -16,7 +16,9 @@ namespace Service
             Console.WriteLine("Service is open press any button!");
             Console.ReadKey();
             host.Close();
-            Console.WriteLine("Service is closed");
+            Console.WriteLine("Service is closing, press any button");
+            //Console.ReadKey();
+        
         }
     }
 }
