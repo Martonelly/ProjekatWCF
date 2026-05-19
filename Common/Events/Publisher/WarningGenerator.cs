@@ -51,7 +51,7 @@ namespace Common.Events.Publisher
         {
             if (VoltageImbalanceWarning != null)
             {
-                VoltageImbalanceWarning(this, new WarningArgs("Voltage Ibalance"));
+                VoltageImbalanceWarning(this, new WarningArgs("Voltage Imbalance"));
             }
         }
 

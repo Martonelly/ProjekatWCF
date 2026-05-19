@@ -38,7 +38,6 @@ namespace Common.Analitics
                     generator.PowerSpikeEvent += listner.LogWarning;
 
                     generator.WarningProcess(Enums.WarningTypes.PowerSpike);
-                    //Power spike treshold needs to be asked 
                 }
             }
         }

@@ -10,7 +10,6 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
-using Common.Test;
 using System.Threading;
 using System.Globalization;
 using System.ComponentModel;
@@ -46,7 +45,6 @@ namespace Client
             private static void start() {
             ILogger logger = new Logger();
             ValidateLine validation = new ValidateLine();
-
             string csvPath = ConfigurationManager.AppSettings["FileName"];
             int totalRows = int.Parse(ConfigurationManager.AppSettings["TotalRows"]);
             string vesion = ConfigurationManager.AppSettings["SchemaVersion"];
@@ -71,9 +69,9 @@ namespace Client
                     PvSample sample = new PvSample(line);
 
                     validation.checkValidity(sample);
-                    if (sample.RowIndex > 200) // Simulate some delay for the first 200 lines to test the client handling of delayed responses
-                    {
-                        Thread.Sleep(10); // Sleep for 0.5 seconds
+                    // Simulate some delay for the first 200 lines to test the client handling of delayed responses
+                    if (sample.RowIndex > 200) {
+                        Thread.Sleep(500);
                     }
 
                     if (validation.IsValid)
@@ -141,9 +139,8 @@ namespace Client
                     PvSample sample = new PvSample(line);
 
                     validation.checkValidity(sample);
-                    if (sample.RowIndex > 200) // Simulate some delay for the first 200 lines to test the client handling of delayed responses
-                    {
-                        Thread.Sleep(10); // Sleep for 0.5 seconds
+                    if (sample.RowIndex > 200){
+                        Thread.Sleep(100); 
                     }
 
                     if (validation.IsValid)

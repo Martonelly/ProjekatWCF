@@ -128,7 +128,6 @@
     <Compile Include="Analitics\Flatline.cs" />
     <Compile Include="Analitics\OverTemp.cs" />
     <Compile Include="Analitics\Spike.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="Contracts\ISessionService.cs" />
     <Compile Include="Contracts\PvMeta.cs" />
     <Compile Include="Contracts\PvSample.cs" />
@@ -145,8 +144,6 @@
     <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Interfaces\IReadFromDataBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Test\SolarDataProcessor.cs" />
-    <Compile Include="Test\Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

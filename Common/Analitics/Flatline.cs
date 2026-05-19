@@ -37,7 +37,6 @@ namespace Common.Analitics
                     generator.PowerFlatLineEvent += listner.LogWarning;
 
                     generator.WarningProcess(Enums.WarningTypes.PowerFlatlineWarning);
-                    //Will reset list here --> needs to be asked also the faltlineRange 
                     samples.Clear();
                 }
             }

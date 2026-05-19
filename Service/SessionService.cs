@@ -18,8 +18,8 @@ namespace Service
 {
     public class SessionService : ISessionService, IDisposable
     {
-        private StreamWriter _streamWriter; //= new StreamWriter("test.csv");
-        private StreamWriter _rejectStreamWriter;// = new StreamWriter("rejected.csv");
+        private StreamWriter _streamWriter;
+        private StreamWriter _rejectStreamWriter;
         private bool _isDisposed = false;
         private ILogger logger = new Logger();
         private int rowCounter;
@@ -64,7 +64,7 @@ namespace Service
             overTemp.OverTempCheck(sample);
 
 
-            Thread.Sleep(100); // Simulate some processing time for each sample to test the client handling of delayed responses
+            Thread.Sleep(500); // Simulate some processing time for each sample to test the client handling of delayed responses
             if (isValid.IsValid)
             {
                 _streamWriter.WriteLine($"{sample.RowIndex},{sample.Day},{sample.Hour},{sample.AcPwrt},{sample.DcVolt},{sample.Temper},{sample.Vl1to2},{sample.Vl2to3},{sample.Vl3to1},{sample.AcCur1},{sample.AcVlt1}");
@@ -127,10 +127,10 @@ namespace Service
             {
                 if (disposing)
                 {
-                    _streamWriter.Close();
-                    _rejectStreamWriter.Close();
-                    _streamWriter.Dispose();
-                    _rejectStreamWriter.Dispose();
+                    _streamWriter?.Close();
+                    _rejectStreamWriter?.Close();
+                    _streamWriter?.Dispose();
+                    _rejectStreamWriter?.Dispose();
                     logger.Info("Services resources have been released");
                 }
                 _isDisposed = true;

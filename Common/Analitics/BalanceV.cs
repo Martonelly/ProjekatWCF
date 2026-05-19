@@ -21,10 +21,9 @@ namespace Common.Analitics
 
             double max = Math.Max(VL1TO2, Math.Max(VL2TO3, VL3TO1));
             double min = Math.Min(VL1TO2, Math.Min(VL2TO3, VL3TO1));
-            double imbalance = (max - min); // R in projct specifications
+            double imbalance = (max - min); 
 
             double alowedRange = ((VL1TO2 + VL2TO3 + VL3TO1) / 3) * (imbalanceRange);
-
             if (imbalance > alowedRange)
             {
                 Listner listner = new Listner();
